@@ -1,0 +1,105 @@
+formatVersion: 1
+inputs:
+  OS:
+    type: string
+    title: OS Template
+    description: OS Input Template
+    readOnly: false
+    default: Windows 2012 R2
+    enum:
+      - Windows 2016
+      - Linux - CentOS 7
+      - Linux - Ubuntu 16.04
+      - Windows 2012 R2
+  hostname:
+    type: string
+    title: VM Hostname
+    description: Hostname of your VM
+  vCPU:
+    type: integer
+    title: vCPU
+    description: vCPU
+    default: 2
+    minimum: 2
+    maximum: 64
+  Memory:
+    type: integer
+    title: Memory (MB)
+    description: Memory (MB)
+    default: 2048
+    minimum: 2048
+    maximum: 8192
+    enum:
+      - 2048
+      - 4096
+      - 8192
+  vCenter_Folder:
+    type: string
+    title: vCenter Folder
+    description: vCenter Folder the VM will be put in
+    default: vra_vm_folder
+  password:
+    type: string
+    title: Administrator Password
+    description: Administrator Password
+    default: VMware1!
+  ip_address:
+    type: string
+    title: IP address
+    description: IP Address for VM
+  ip_netmask:
+    type: string
+    title: Netmask
+    description: Netmask for VM
+  ip_gw:
+    type: string
+    title: Gateway
+    description: Gateway for VM
+  ip_dns1:
+    type: string
+    title: Primary DNS
+    description: Primary DNS your VM will use
+  ip_dns2:
+    type: string
+    title: Secondary DNS
+    description: Secondary DNS your VM will use
+resources:
+  Cloud_vSphere_Network_1:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      networkType: existing
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 1
+    properties:
+      image: ${input.OS}
+      cpuCount: ${input.vCPU}
+      totalMemoryMB: ${input.Memory}
+      folderName: ${input.vCenter_Folder}
+      attachedDisks:
+        - source: ${resource.Cloud_vSphere_Disk_1.id}
+      networks:
+        - network: ${resource.Cloud_vSphere_Network_1.id}
+          assignment: static
+          address: ${input.ip_address}
+          gateway: ${input.ip_gw}
+          netmask: ${input.ip_netmask}
+          dns:
+            - ${input.ip_dns1}
+            - ${input.ip_dns2}
+      newName: ${input.hostname}
+  Cloud_vSphere_Disk_1:
+    type: Cloud.vSphere.Disk
+    metadata:
+      layoutPosition:
+        - 1
+        - 2
+    properties:
+      capacityGb: 20
