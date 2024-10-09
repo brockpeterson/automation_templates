@@ -1,0 +1,93 @@
+formatVersion: 1
+inputs:
+  OS:
+    type: string
+    title: OS Input Template
+    description: OS Input Template
+    readOnly: false
+    default: null
+    enum:
+      - Linux - CentOS 7
+      - Linux - Ubuntu 16.04
+  vCPU:
+    type: integer
+    title: vCPU
+    description: vCPU
+    default: 2
+    minimum: 2
+    maximum: 64
+  Memory:
+    type: integer
+    title: Memory
+    description: Memory
+    default: 4
+    minimum: 4
+    maximum: 256
+  vCenter_Folder:
+    type: string
+    title: vCenter Folder
+    description: vCenter Folder the VM will be put in
+    default: vra_vm_folder
+  ip_address:
+    type: string
+    title: Input IP address
+    description: IP Address for VM
+  ip_gateway:
+    type: string
+    title: Input Gateway
+    description: Gateway your VM will use
+  ip_netmask:
+    type: string
+    title: Input Netmask
+    description: Netmask your VM will use
+  ip_dns:
+    type: string
+    title: Input Primary DNS
+    description: Primary DNS your VM will use
+  hostname:
+    type: string
+    title: Input VM Hostname
+    description: Hostname of your VM
+  capacity:
+    type: integer
+    title: Input Disk Capacity (gb)
+    default: 20
+    description: Desired Disc Capacity in gb
+resources:
+  Cloud_vSphere_Network_1:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      networkType: existing
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 2
+    properties:
+      image: ${input.OS}
+      cpuCount: ${input.vCPU}
+      totalMemoryMB: ${input.Memory}
+      folderName: ${input.vCenter_Folder}
+      dns: ${input.ip_dns}
+      address: ${input.ip_address}
+      gateway: ${input.ip_gateway}
+      netmask: ${input.ip_netmask}
+      name: ${input.hostname}
+      assignment: static
+      attachedDisks:
+        - source: ${resource.Cloud_vSphere_Disk_1.id}
+      networks:
+        - network: ${resource.Cloud_vSphere_Network_1.id}
+  Cloud_vSphere_Disk_1:
+    type: Cloud.vSphere.Disk
+    metadata:
+      layoutPosition:
+        - 2
+        - 1
+    properties:
+      capacityGb: ${input.capacity}
