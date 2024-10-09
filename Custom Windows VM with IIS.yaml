@@ -1,0 +1,80 @@
+formatVersion: 1
+inputs:
+  vCenter_Folder:
+    type: string
+    title: vCenter Folder
+    description: vCenter Folder the VM will be put in
+    default: vra_vm_folder
+  hostname:
+    type: string
+    title: VM Hostname
+    description: VM Hostname
+    default: vm_hostname_goes_here
+  password:
+    type: string
+    title: Administrator Password
+    description: Administrator Password
+    default: VMware1!
+  os:
+    type: string
+    title: Operating System
+    description: Operating System
+    enum:
+      - Windows 2016
+      - Linux - CentOS 7
+      - Linux - Ubuntu 16.04
+      - Windows 2012 R2
+      - Windows 2016 with Cloudbase-Init
+      - Windows 2016 with Cloudbase-Init v2
+      - Windows 2016 with Cloudbase-Init v3
+  vcpu:
+    type: integer
+    title: vCPU
+    description: Number of vCPU
+    default: 2
+  memory:
+    type: integer
+    title: Memory(MB)
+    description: Memory(MB)on VMware
+    default: 4096
+resources:
+  Cloud_vSphere_Network_1:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      networkType: existing
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 1
+    remoteAccess:
+      authentication: usernamePassword
+      username: Administrator
+      password: ${input.password}
+    cloudConfig: |
+      #ps1_sysnative
+        New-Item $env:SystemDrive\powershell_multipart.txt -type file -ErrorAction SilentlyContinue
+        Install-WindowsFeature -name Web-Server -IncludeManagementTools
+    properties:
+      image: ${input.os}
+      cpuCount: ${input.vcpu}
+      totalMemoryMB: ${input.memory}
+      newName: ${input.hostname}
+      customizationSpec: Windows Rename VM
+      attachedDisks:
+        - source: ${resource.Cloud_vSphere_Disk_1.id}
+      networks:
+        - network: ${resource.Cloud_vSphere_Network_1.id}
+  Cloud_vSphere_Disk_1:
+    type: Cloud.vSphere.Disk
+    metadata:
+      layoutPosition:
+        - 2
+        - 0
+    properties:
+      capacityGb: 20
