@@ -1,0 +1,91 @@
+# Created by Quickstart/Setup Cloud wizard.
+formatVersion: 1
+inputs:
+  vmname:
+    type: string
+    description: VM Name (shortname)
+    title: VM Name (shortname)
+  vcpuCount:
+    type: integer
+    description: Number of vCPUs
+    title: vCPU being requested
+    default: 2
+    minimum: 2
+    maximum: 32
+    enum:
+      - 2
+      - 4
+      - 8
+      - 16
+      - 32
+  totalMemoryMB:
+    type: integer
+    description: Memory in MB
+    title: Memory being requested (MB)
+    default: 4096
+    minimum: 4096
+    maximum: 32768
+    enum:
+      - 4096
+      - 8192
+      - 12288
+      - 16384
+      - 20480
+      - 24576
+      - 28672
+      - 32768
+  selectedIP:
+    type: string
+    description: Select IP from IP Block
+    title: IP for VM
+    default: 192.168.135.190
+    enum:
+      - 192.168.135.190
+      - 192.168.135.191
+      - 192.168.135.192
+      - 192.168.135.193
+      - 192.168.135.194
+      - 192.168.135.195
+      - 192.168.135.196
+      - 192.168.135.197
+      - 192.168.135.198
+      - 192.168.135.199
+  customizationSpec:
+    type: string
+    description: Customization Specification
+    title: Customization Specification
+    default: Windows Customization Specification
+    enum:
+      - Windows Customization Specification
+      - Linux Customization Specification
+resources:
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      name: QSNetwork
+      networkType: existing
+      constraints:
+        - tag: account:alderstead.vcfops.lab / Datacenter-1
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      imageRef: win2022-postinstall
+      cpuCount: ${input.vcpuCount}
+      totalMemoryMB: ${input.totalMemoryMB}
+      cloudConfig: null
+      customizationSpec: ${input.customizationSpec}
+      name: ${input.vmname}
+      constraints:
+        - tag: account:alderstead.vcfops.lab / Datacenter-1
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.selectedIP}
