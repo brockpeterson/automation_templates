@@ -1,0 +1,110 @@
+# Created by Brock Peterson.
+formatVersion: 1
+inputs:
+  vmname:
+    type: string
+    description: VM Name (shortname)
+    title: VM Name (shortname)
+  vcpuCount:
+    type: integer
+    description: Number of vCPUs
+    title: vCPU being requested
+    default: 2
+    minimum: 2
+    maximum: 32
+  totalMemoryMB:
+    type: integer
+    description: Memory in MB
+    title: Memory being requested (MB)
+    default: 4096
+    minimum: 4096
+    maximum: 32768
+    enum:
+      - 4096
+      - 8192
+      - 12288
+      - 16384
+      - 20480
+      - 24576
+      - 28672
+      - 32768
+  os:
+    type: string
+    description: OS
+    title: OS for VM
+    default: Windows 2022
+    enum:
+      - CentOS Linux 7
+      - CentOS Linux 8
+      - Debian Linux 12
+      - Oracle Linux 9
+      - RHEL 7
+      - Rocky Linux 9
+      - Windows 2022
+      - Windows 2025
+  ip:
+    type: string
+    description: IP of VM
+    title: IP of VM
+  owner:
+    type: string
+    description: Owner of VM (please use email address)
+    title: Owner of VM (please use email address)
+  category:
+    type: string
+    description: Category of VM
+    title: Category of VM
+    default: TEST
+    enum:
+      - TEST
+      - DEVELOPMENT
+      - PRODUCTION
+  description:
+    type: string
+    description: Description of the VM
+    title: Description of the VM
+  vm_snapshot:
+    type: string
+    description: Would you like to take a Snapshot after deployment?
+    title: Would you like to take a Snapshot after deployment?
+    enum:
+      - 'YES'
+      - 'NO'
+resources:
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      name: QSNetwork
+      networkType: existing
+      constraints:
+        - tag: account:alderstead.vcfops.lab / Datacenter-1
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      image: ${input.os}
+      cpuCount: ${input.vcpuCount}
+      totalMemoryMB: ${input.totalMemoryMB}
+      name: ${input.vmname}
+      customProperties:
+        vm_snapshot: ${input.vm_snapshot}
+      tags:
+        - key: owner
+          value: ${input.owner}
+        - key: environment
+          value: ${input.category}
+        - key: description
+          value: ${input.description}
+      constraints:
+        - tag: account:alderstead.vcfops.lab / Datacenter-1
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.ip}
