@@ -1,0 +1,280 @@
+# Created by Brock Peterson.
+formatVersion: 1
+inputs:
+  vmList:
+    type: array
+    title: Virtual Machines
+    description: List of VMs
+    minItems: 1
+    maxItems: 10
+    items:
+      type: object
+      title: VM Details
+      properties:
+        vm_name:
+          type: string
+          title: VM Name
+        vm_display_name:
+          type: string
+          title: VM Display Name
+        ip:
+          type: string
+          title: IP Address
+          pattern: ^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$
+        notes:
+          type: string
+          title: VM Notes
+        owner:
+          type: string
+          title: VM Owner
+          pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      required:
+        - vm_name
+        - vm_display_name
+        - ip
+        - notes
+        - owner
+  size:
+    type: string
+    description: Size of VM
+    title: Size of VM
+    default: Small (2x4)
+    enum:
+      - Small (2x4)
+      - Medium (4x8)
+      - Large (8x16)
+      - Extra Large (16x32)
+  os:
+    type: string
+    description: OS
+    title: OS for VM
+    default: Windows 2022
+    enum:
+      - CentOS Linux 7
+      - CentOS Linux 8
+      - Debian Linux 12
+      - Oracle Linux 9
+      - RHEL 7
+      - Rocky Linux 9
+      - Windows 2022
+      - Windows
+  network:
+    type: string
+    description: Network
+    title: Network
+    default: VM Network
+    enum:
+      - VM Network
+      - vcf-ops-ds1-DVUplinks-30
+      - vcf-ops
+  category:
+    type: string
+    description: Category of VM
+    title: Category of VM
+    default: TEST
+    enum:
+      - TEST
+      - DEVELOPMENT
+      - PRODUCTION
+resources:
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      name: QSNetwork
+      networkType: existing
+      constraints:
+        - tag: ${input.network}
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      count: '${length(input.vmList) >= 1 ? 1 : 0}'
+      name: ${input.vmList[0].vm_display_name}
+      hostname: ${input.vmList[0].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[0].notes}
+      owner: ${input.vmList[0].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[0].ip}
+  Cloud_vSphere_Machine_2:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 1
+    properties:
+      count: '${length(input.vmList) >= 2 ? 1 : 0}'
+      name: ${input.vmList[1].vm_display_name}
+      hostname: ${input.vmList[1].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[1].notes}
+      owner: ${input.vmList[1].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[1].ip}
+  Cloud_vSphere_Machine_3:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 2
+    properties:
+      count: '${length(input.vmList) >= 3 ? 1 : 0}'
+      name: ${input.vmList[2].vm_display_name}
+      hostname: ${input.vmList[2].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[2].notes}
+      owner: ${input.vmList[2].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[2].ip}
+  Cloud_vSphere_Machine_4:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 3
+    properties:
+      count: '${length(input.vmList) >= 4 ? 1 : 0}'
+      name: ${input.vmList[3].vm_display_name}
+      hostname: ${input.vmList[3].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[3].notes}
+      owner: ${input.vmList[3].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[3].ip}
+  Cloud_vSphere_Machine_5:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 4
+    properties:
+      count: '${length(input.vmList) >= 5 ? 1 : 0}'
+      name: ${input.vmList[4].vm_display_name}
+      hostname: ${input.vmList[4].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[4].notes}
+      owner: ${input.vmList[4].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[4].ip}
+  Cloud_vSphere_Machine_6:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 5
+    properties:
+      count: '${length(input.vmList) >= 6 ? 1 : 0}'
+      name: ${input.vmList[5].vm_display_name}
+      hostname: ${input.vmList[5].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[5].notes}
+      owner: ${input.vmList[5].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[5].ip}
+  Cloud_vSphere_Machine_7:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 6
+    properties:
+      count: '${length(input.vmList) >= 7 ? 1 : 0}'
+      name: ${input.vmList[6].vm_display_name}
+      hostname: ${input.vmList[6].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[6].notes}
+      owner: ${input.vmList[6].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[6].ip}
+  Cloud_vSphere_Machine_8:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 7
+    properties:
+      count: '${length(input.vmList) >= 8 ? 1 : 0}'
+      name: ${input.vmList[7].vm_display_name}
+      hostname: ${input.vmList[7].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[7].notes}
+      owner: ${input.vmList[7].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[7].ip}
+  Cloud_vSphere_Machine_9:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 8
+    properties:
+      count: '${length(input.vmList) >= 9 ? 1 : 0}'
+      name: ${input.vmList[8].vm_display_name}
+      hostname: ${input.vmList[8].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[8].notes}
+      owner: ${input.vmList[8].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[8].ip}
+  Cloud_vSphere_Machine_10:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 9
+    properties:
+      count: '${length(input.vmList) >= 10 ? 1 : 0}'
+      name: ${input.vmList[9].vm_display_name}
+      hostname: ${input.vmList[9].vm_name}
+      image: ${input.os}
+      flavor: ${input.size}
+      notes: ${input.vmList[9].notes}
+      owner: ${input.vmList[9].owner}
+      category: ${input.category}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          ip_addresses: ${input.vmList[9].ip}
