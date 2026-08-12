@@ -1,0 +1,90 @@
+# Created by Brock Peterson
+formatVersion: 1
+inputs:
+  vm_dns_name:
+    type: string
+    description: VM DNS Name
+    title: VM DNS Name
+  vm_display_name:
+    type: string
+    description: VM Display Name
+    title: VM Display Name
+  network:
+    type: string
+    description: Network (check Network Profile for IP Ranges)
+    title: Network (check Network Profile for IP Ranges)
+    enum:
+      - VM Network
+      - vcf-ops
+  ip:
+    type: string
+    description: IP for VM (ensure IP is in range for selected Network)
+    title: IP for VM (ensure IP is in range for selected Network)
+  vcpu:
+    type: integer
+    description: vCPUs
+    title: vCPUs
+    default: 2
+    minimum: 2
+    maximum: 16
+    enum:
+      - 2
+      - 4
+      - 8
+      - 16
+  MemoryMB:
+    type: integer
+    description: Memory (MB)
+    title: Memory (MB)
+    default: 4096
+    minimum: 4096
+    maximum: 32768
+    enum:
+      - 4096
+      - 8192
+      - 16384
+      - 32768
+  os:
+    type: string
+    description: OS
+    title: OS
+    default: Windows2022-Template
+    enum:
+      - Windows2022-Template
+      - Windows2025-Template
+  customizationSpec:
+    type: string
+    description: Customization Specification
+    title: Customization Specification
+    default: Windows Customization Specification
+    enum:
+      - Windows Customization Specification
+      - Windows Customization Specification v2
+resources:
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      networkType: existing
+      constraints:
+        - tag: ${input.network}
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      name: ${input.vm_display_name}
+      hostname: ${input.vm_dns_name}
+      imageRef: ${input.os}
+      cpuCount: ${input.vcpu}
+      totalMemoryMB: ${input.MemoryMB}
+      customizationSpec: ${input.customizationSpec}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          address: ${input.ip}
