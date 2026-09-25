@@ -1,0 +1,94 @@
+# Created by Brock Peterson
+formatVersion: 1
+inputs:
+  vm_display_name:
+    type: string
+    description: VM Display Name
+    title: VM Display Name
+  vm_dns_name:
+    type: string
+    description: VM DNS Name
+    title: VM DNS Name
+  vcpu:
+    type: integer
+    description: vCPUs
+    title: vCPUs
+    default: 2
+    minimum: 2
+    maximum: 16
+    enum:
+      - 2
+      - 4
+      - 8
+      - 16
+  MemoryMB:
+    type: integer
+    description: Memory (MB)
+    title: Memory (MB)
+    default: 4096
+    minimum: 4096
+    maximum: 32768
+    enum:
+      - 4096
+      - 8192
+      - 16384
+      - 32768
+  os:
+    type: string
+    description: OS
+    title: OS for VM
+    default: RHEL7-Template
+    enum:
+      - CentOS7-Template
+      - CentOS8-Template
+      - Debian12-Template
+      - OracleLinux9-Template
+      - RHEL7-Template
+      - RockyLinux9-Template
+  ip:
+    type: string
+    description: IP of VM
+    title: IP of VM
+  customizationspec:
+    type: string
+    description: Customization Specification
+    title: Customization Specification
+    default: Linux Customization Specification
+  datastore:
+    type: string
+    title: Datastore
+    default: ds:vsandatastore
+    oneOf:
+      - title: vSAN Datastore
+        const: ds:vsandatastore
+      - title: Another Datastore
+        const: ds:anotherdatastore
+resources:
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      networkType: existing
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      name: ${input.vm_display_name}
+      hostname: ${input.vm_dns_name}
+      imageRef: ${input.os}
+      cpuCount: ${input.vcpu}
+      totalMemoryMB: ${input.MemoryMB}
+      customizationSpec: ${input.customizationspec}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
+          address: ${input.ip}
+      storage:
+        constraints:
+          - tag: ${input.datastore}
