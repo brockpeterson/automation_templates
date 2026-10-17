@@ -1,0 +1,137 @@
+# Created by Brock Peterson.
+formatVersion: 1
+inputs:
+  vcenter:
+    type: string
+    title: vCenter
+    description: Target vCenter
+    $dynamicEnum: /data/vro-actions/com.lab.vra.inputs/getVcenters
+  cluster:
+    type: string
+    title: Cluster
+    description: Clusters in the selected vCenter
+    $dynamicEnum: /data/vro-actions/com.lab.vra.inputs/getClusters?vcenter={{vcenter}}
+  host:
+    type: string
+    title: ESXi Host
+    description: Pick a host, or Any to let DRS decide
+    $dynamicEnum: /data/vro-actions/com.lab.vra.inputs/getHosts?vcenter={{vcenter}}&cluster={{cluster}}
+  portgroup:
+    type: string
+    title: Distributed Port Group
+    description: Distributed port groups available to the selected cluster
+    $dynamicEnum: /data/vro-actions/com.lab.vra.inputs/getPortGroups?vcenter={{vcenter}}&cluster={{cluster}}
+  vm_display_name:
+    type: string
+    description: VM Display Name
+    title: VM Display Name
+  vm_dns_name:
+    type: string
+    description: VM DNS Name
+    title: VM DNS Name
+  vcpuCount:
+    type: integer
+    description: Number of vCPUs
+    title: vCPU being requested
+    default: 2
+    minimum: 2
+    maximum: 32
+  totalMemoryMB:
+    type: integer
+    description: Memory in MB
+    title: Memory being requested (MB)
+    default: 4096
+    minimum: 4096
+    maximum: 32768
+    enum:
+      - 4096
+      - 8192
+      - 12288
+      - 16384
+      - 20480
+      - 24576
+      - 28672
+      - 32768
+  os:
+    type: string
+    description: OS
+    title: OS for VM
+    default: Windows 2022
+    enum:
+      - CentOS Linux 7
+      - CentOS Linux 8
+      - Debian Linux 12
+      - Oracle Linux 9
+      - RHEL 7
+      - Rocky Linux 9
+      - Windows 2022
+      - Windows
+  owner:
+    type: string
+    description: Owner of VM (please use email address)
+    title: Owner of VM (please use email address)
+  description:
+    type: string
+    description: Description of this VM
+    title: Description of this VM
+  category:
+    type: string
+    description: Category of VM
+    title: Category of VM
+    default: TEST
+    enum:
+      - TEST
+      - DEVELOPMENT
+      - PRODUCTION
+  notes:
+    type: string
+    description: VM Notes
+    title: VM Notes
+  vm_snapshot:
+    type: string
+    description: Snapshot after deployment?
+    title: Snapshot after deployment?
+    enum:
+      - 'YES'
+      - 'NO'
+resources:
+  Cloud_Network_1:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      name: QSNetwork
+      networkType: existing
+      constraints:
+        # Same convention you use today: fabric network tagged with its own name
+        - tag: ${input.portgroup}
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 1
+    properties:
+      image: ${input.os}
+      cpuCount: ${input.vcpuCount}
+      totalMemoryMB: ${input.totalMemoryMB}
+      name: ${input.vm_display_name}
+      hostname: ${input.vm_dns_name}
+      # Placement: compute resources (clusters) must carry these tags
+      constraints:
+        - tag: vcenter:${input.vcenter}
+        - tag: cluster:${input.cluster}
+      # Picked up by an extensibility subscription to pin the VM to a host
+      targetHost: ${input.host}
+      vm_snapshot: ${input.vm_snapshot}
+      notes: ${input.notes}
+      owner: ${input.owner}
+      description: ${input.description}
+      category: ${input.category}
+      vcpu: ${input.vcpuCount}
+      memoryMB: ${input.totalMemoryMB}
+      networks:
+        - network: ${resource.Cloud_Network_1.id}
+          assignment: static
